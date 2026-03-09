@@ -28,5 +28,7 @@ else
     echo "[entrypoint] Persisted Homebrew to volume on first boot"
   fi
 fi
-
+# Clear stale Chromium singleton locks on startup
+find /data -name "SingletonLock" -delete 2>/dev/null || true
+find /data -name "SingletonSocket" -delete 2>/dev/null || true
 exec gosu openclaw node src/server.js
