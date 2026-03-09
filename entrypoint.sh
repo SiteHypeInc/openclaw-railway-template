@@ -28,7 +28,30 @@ else
     echo "[entrypoint] Persisted Homebrew to volume on first boot"
   fi
 fi
+
 # Clear stale Chromium singleton locks on startup
 find /data -name "SingletonLock" -delete 2>/dev/null || true
 find /data -name "SingletonSocket" -delete 2>/dev/null || true
+
+# Add OpenRouter auth profile
+mkdir -p /data/.openclaw/agents/main/agent
+python3 -c "
+import json, os
+path = '/data/.openclaw/agents/main/agent/auth-profiles.json'
+try:
+    with open(path, 'r') as f:
+        c = json.load(f)
+except:
+    c = {'version': 1, 'profiles': {}, 'usageStats': {}}
+c['profiles']['openrouter:default'] = {
+    'type': 'api_key',
+    'provider': 'openrouter',
+    'baseUrl': 'https://openrouter.ai/api/v1',
+    'key': os.environ.get('OPENROUTER_API_KEY', '')
+}
+with open(path, 'w') as f:
+    json.dump(c, f, indent=2)
+" 2>/dev/null || true
+
+exec gosu openclaw node src/server.js
 exec gosu openclaw node src/server.js
