@@ -1,15 +1,16 @@
-# Build openclaw from source to avoid npm packaging gaps (some dist files are not shipped).
-FROM node:22-bookworm AS openclaw-build
-
-# Dependencies needed for openclaw build
+FROM node:22-bookworm
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    git \
     ca-certificates \
     curl \
+    git \
+    gosu \
+    procps \
     python3 \
-    make \
-    g++ \
+    build-essential \
+    zip \
+    chromium \
+    chromium-driver \
   && rm -rf /var/lib/apt/lists/*
 
 # Install Bun (openclaw build uses it)
@@ -118,6 +119,8 @@ ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
 ENV HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
 ENV HOMEBREW_CELLAR="/home/linuxbrew/.linuxbrew/Cellar"
 ENV HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew"
+ENV CHROME_PATH=/usr/bin/chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 ENV PORT=8080
 EXPOSE 8080
